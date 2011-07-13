@@ -6,19 +6,22 @@ package br.com.redrails;
  * www.redrails.com.br
  * http://br.linkedin.com/in/luizkarvalho (recommend me) 
  * more in http://www.redrails.com.br/tags/QoV/
- * */
+ * 
+ */
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import android.util.Log; 
 
 public class SuDroid {
-	// private static final String TAG = "sudroid";
-
+	private static final String SU = "su";
 	public String success_msg = null;
 	public String error_msg = null;
+	public String exception = null;
 	public Boolean success = false;
+
 
 	public SuDroid(String command) {
 		Process proc = run(command);
@@ -33,27 +36,30 @@ public class SuDroid {
 
 		} catch (InterruptedException ex) {
 			success = false;
-			print("Error in execute command: " + ex.toString());
+			showException("SuDroid Exeception:  " + ex.toString());
 		} catch (NullPointerException ex) {
 			success = false;
-			print("Error in execute command:  " + ex.toString());
+			showException("SuDroid Exeception:  " + ex.toString());
 		}
 
 	}
 
 	public String result() {
-		return "";
+		if(success || !success_msg.isEmpty()){
+			return success_msg;
+		}		
+		return error_msg;
 	}
 
 	public Process run(String command) {
 		Process proc = null;
 		try {
-			proc = Runtime.getRuntime().exec("sudo");
+			proc = Runtime.getRuntime().exec(SU);
 			DataOutputStream dataProc = new DataOutputStream(proc.getOutputStream());
 			dataProc.writeBytes("exec " + command + "\n");
 			dataProc.flush();
 		} catch (Exception ex) {
-			print(ex.getMessage());
+			showException(ex.getMessage());
 			success = false;
 			proc = null;
 		}
@@ -73,7 +79,7 @@ public class SuDroid {
 			dataIstream.close();
 		} catch (Exception ex) {
 			success = false;
-			print(ex.getMessage());
+			showException(ex.getMessage());
 		}
 
 		if (result != null) {
@@ -83,9 +89,10 @@ public class SuDroid {
 
 	}
 
-	public void print(String msg) {
-		System.out.println(msg);
-		// Log.e(TAG, "A Error Occurred: " + e.toString());
+	public void showException(String msg) {
+		exception = exception +"\n"+ msg;
+		//System.out.println(msg); // IF NOT ANDROID
+		Log.e("SuDroid: ", "Le Exception: " + msg);
 	}
 
 }
